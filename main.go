@@ -30,7 +30,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	logger.Debug().Msg("starting Tangia mono api")
+	logger.Debug().Msg("starting unnamed api")
 
 	if err := crdb.ConnectToDB(); err != nil {
 		logger.Error().Err(err).Msg("error connecting to CRDB")

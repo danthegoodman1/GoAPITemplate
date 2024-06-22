@@ -74,6 +74,10 @@ func ValidateRequest(c echo.Context, s interface{}) error {
 	if err := c.Bind(s); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	// needed because POST doesn't have query param binding (https://echo.labstack.com/docs/binding#multiple-sources)
+	if err := (&echo.DefaultBinder{}).BindQueryParams(c, s); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 	if err := c.Validate(s); err != nil {
 		return err
 	}

@@ -12,7 +12,9 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"os"
+	"strings"
 )
 
 var (
@@ -33,7 +35,8 @@ func InitTracer(ctx context.Context) (tp *trace.TracerProvider, err error) {
 		}
 	} else {
 		logger.Warn().Msg("No OLTP endpoint provided, tracing to stdout")
-		exporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
+		// exporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
+		exporter, err = stdouttrace.New()
 		if err != nil {
 			return nil, err
 		}
@@ -54,4 +57,13 @@ func InitTracer(ctx context.Context) (tp *trace.TracerProvider, err error) {
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	return tp, nil
+}
+
+func CreateSpan(ctx context.Context, tracer oteltrace.Tracer, s string) (context.Context, oteltrace.Span) {
+	queryName, _, _ := strings.Cut(s, "\n")
+	opts := []oteltrace.SpanStartOption{
+		oteltrace.WithSpanKind(oteltrace.SpanKindServer),
+	}
+	ctx, span := tracer.Start(ctx, queryName, opts...)
+	return ctx, span
 }

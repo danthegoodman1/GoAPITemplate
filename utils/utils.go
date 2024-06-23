@@ -315,3 +315,11 @@ func IsErr[T error](err error) bool {
 	_, ok := AsErr[T](err)
 	return ok
 }
+
+func MustMarshal(v any) []byte {
+	b, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return b
+}

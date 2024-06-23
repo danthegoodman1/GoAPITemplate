@@ -1,13 +1,15 @@
 package http_server
 
 import (
+	"errors"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog"
 	"net/http"
 )
 
 func customHTTPErrorHandler(err error, c echo.Context) {
-	if he, ok := err.(*echo.HTTPError); ok {
+	var he *echo.HTTPError
+	if errors.As(err, &he) {
 		c.String(he.Code, he.Message.(string))
 		return
 	}

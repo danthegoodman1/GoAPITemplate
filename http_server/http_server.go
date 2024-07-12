@@ -45,6 +45,7 @@ func StartHTTPServer() *HTTPServer {
 	s.Echo.Use(LoggerMiddleware)
 	s.Echo.Use(middleware.CORS())
 	s.Echo.Validator = &CustomValidator{validator: validator.New()}
+	s.Echo.HTTPErrorHandler = customHTTPErrorHandler
 
 	// technical - no auth
 	s.Echo.GET("/hc", s.HealthCheck)

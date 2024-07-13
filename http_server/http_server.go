@@ -86,7 +86,7 @@ func StartHTTPServer() *HTTPServer {
 
 		// Create HTTP/3 server
 		s.quicServer = &http3.Server{
-			Addr:      ":443",
+			Addr:      listener.Addr().String(),
 			Handler:   s.Echo,
 			TLSConfig: tlsConfig,
 		}

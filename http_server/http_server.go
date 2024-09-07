@@ -73,7 +73,7 @@ func StartHTTPServer() *HTTPServer {
 
 	// Start http/3 server
 	go func() {
-		tlsCert, err := generateTLSCert()
+		tlsCert, err := loadOrGenerateTLSCert()
 		if err != nil {
 			logger.Fatal().Err(err).Msg("failed to generate self-signed cert")
 		}
@@ -170,16 +170,13 @@ func LoggerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-const (
-	certFile = "cert.pem"
-	keyFile  = "key.pem"
-)
-
-func generateTLSCert() (tls.Certificate, error) {
+// loadOrGenerateTLSCert will look for utils.TLSCert and utils.TLSKey on disk and load them.
+// If both don't exist, it will generate a new pair and return those.
+func loadOrGenerateTLSCert() (tls.Certificate, error) {
 	// Check if certificate and key files exist
-	if fileExists(certFile) && fileExists(keyFile) {
+	if fileExists(utils.TLSCert) && fileExists(utils.TLSKey) {
 		// Load existing certificate and key
-		return tls.LoadX509KeyPair(certFile, keyFile)
+		return tls.LoadX509KeyPair(utils.TLSCert, utils.TLSKey)
 	}
 
 	// Generate a new certificate and key
@@ -208,7 +205,7 @@ func generateTLSCert() (tls.Certificate, error) {
 	}
 
 	// Save the certificate
-	certOut, err := os.Create(certFile)
+	certOut, err := os.Create(utils.TLSCert)
 	if err != nil {
 		return tls.Certificate{}, err
 	}
@@ -216,7 +213,7 @@ func generateTLSCert() (tls.Certificate, error) {
 	certOut.Close()
 
 	// Save the key
-	keyOut, err := os.Create(keyFile)
+	keyOut, err := os.Create(utils.TLSKey)
 	if err != nil {
 		return tls.Certificate{}, err
 	}
@@ -228,7 +225,7 @@ func generateTLSCert() (tls.Certificate, error) {
 	keyOut.Close()
 
 	// Load the newly created certificate and key
-	return tls.LoadX509KeyPair(certFile, keyFile)
+	return tls.LoadX509KeyPair(utils.TLSCert, utils.TLSKey)
 }
 
 func fileExists(filename string) bool {

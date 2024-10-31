@@ -7,7 +7,7 @@ var (
 	Env_TracingServiceName = os.Getenv("TRACING_SERVICE_NAME")
 	Env_OLTPEndpoint       = os.Getenv("OLTP_ENDPOINT")
 
-	CRDB_DSN = os.Getenv("CRDB_DSN")
+	PG_DSN = os.Getenv("PG_DSN")
 
 	TLSKey  = GetEnvOrDefault("TLS_KEY", "key.pem")
 	TLSCert = GetEnvOrDefault("TLS_CERT", "cert.pem")

@@ -1,4 +1,4 @@
-package crdb
+package pg
 
 import (
 	"context"
@@ -17,9 +17,9 @@ var (
 )
 
 func ConnectToDB() error {
-	logger.Debug().Msg("connecting to CRDB...")
+	logger.Debug().Msg("connecting to PG...")
 	var err error
-	config, err := pgxpool.ParseConfig(utils.CRDB_DSN)
+	config, err := pgxpool.ParseConfig(utils.PG_DSN)
 	if err != nil {
 		return err
 	}
@@ -34,6 +34,6 @@ func ConnectToDB() error {
 	if err != nil {
 		return err
 	}
-	logger.Debug().Msg("connected to CRDB")
+	logger.Debug().Msg("connected to PG")
 	return nil
 }

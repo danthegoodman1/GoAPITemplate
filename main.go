@@ -33,7 +33,7 @@ func main() {
 	logger.Debug().Msg("starting unnamed api")
 
 	if err := pg.ConnectToDB(); err != nil {
-		logger.Error().Err(err).Msg("error connecting to CRDB")
+		logger.Error().Err(err).Msg("error connecting to PG")
 		os.Exit(1)
 	}
 

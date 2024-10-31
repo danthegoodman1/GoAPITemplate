@@ -26,36 +26,36 @@ func main() {
 	if _, err := os.Stat(".env"); err == nil {
 		err = godotenv.Load()
 		if err != nil {
-			logger.Error().Err(err).Msg("error loading .env file, exiting")
-			os.Exit(1)
+			logger.Fatal().Err(err).Msg("error loading .env file, exiting")
+			return
 		}
 	}
 	logger.Debug().Msg("starting unnamed api")
 
 	if err := pg.ConnectToDB(); err != nil {
-		logger.Error().Err(err).Msg("error connecting to PG")
-		os.Exit(1)
+		logger.Fatal().Err(err).Msg("error connecting to PG")
+		return
 	}
 
 	err := migrations.CheckMigrations(utils.PG_DSN)
 	if err != nil {
-		logger.Error().Err(err).Msg("Error checking migrations")
-		os.Exit(1)
+		logger.Fatal().Err(err).Msg("Error checking migrations")
+		return
 	}
 
 	prometheusReporter := observability.NewPrometheusReporter()
 	go func() {
 		err := observability.StartInternalHTTPServer(":8042", prometheusReporter)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Error().Err(err).Msg("internal server couldn't start")
-			os.Exit(1)
+			logger.Fatal().Err(err).Msg("internal server couldn't start")
+			return
 		}
 	}()
 
 	err = temporal.Run(context.Background(), prometheusReporter)
 	if err != nil {
-		logger.Error().Err(err).Msg("Temporal init error")
-		os.Exit(1)
+		logger.Fatal().Err(err).Msg("Temporal init error")
+		return
 	}
 
 	httpServer := http_server.StartHTTPServer()

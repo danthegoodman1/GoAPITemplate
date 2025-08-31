@@ -1,6 +1,6 @@
 local:
   dialect: postgres
-  datasource: dbname=defaultdb sslmode=disable host=localhost port=5432 user=postgres
+  datasource: dbname=defaultdb sslmode=disable host=localhost port=5432 user=postgres password=postgres
   dir: migrations
   table: migrations
 

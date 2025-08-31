@@ -27,7 +27,7 @@ tasks:
 
   sql-up:
     preconditions:
-      - msg: set env CRDB_DSN and SQL_ENV to local,staging,prod,development
+      - msg: set env PG_DSN and SQL_ENV to local,staging,prod,development
         sh: echo $SQL_ENV | grep .
     cmds:
     - sql-migrate up --env=$SQL_ENV
@@ -35,7 +35,7 @@ tasks:
 
   sql-down:
     preconditions:
-      - msg: set env CRDB_DSN and SQL_ENV to local,staging,prod,development
+      - msg: set env PG_DSN and SQL_ENV to local,staging,prod,development
         sh: echo $SQL_ENV | grep .
     cmds:
     - sql-migrate down --env=$SQL_ENV
@@ -43,7 +43,7 @@ tasks:
 
   sql-status:
     preconditions:
-      - msg: set env CRDB_DSN and SQL_ENV to local,staging,prod,development
+      - msg: set env PG_DSN and SQL_ENV to local,staging,prod,development
         sh: echo $SQL_ENV | grep .
     cmds:
     - sql-migrate status --env=$SQL_ENV

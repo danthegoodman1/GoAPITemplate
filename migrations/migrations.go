@@ -20,8 +20,8 @@ var (
 	logger = gologger.NewLogger()
 )
 
-func RunMigrations(crdbDsn string) (int, error) {
-	db, err := sql.Open("pgx", crdbDsn)
+func RunMigrations(pgDSN string) (int, error) {
+	db, err := sql.Open("pgx", pgDSN)
 	if err != nil {
 		return 0, err
 	}
@@ -36,8 +36,8 @@ func RunMigrations(crdbDsn string) (int, error) {
 	return ms.Exec(db, "postgres", src, migrate.Up)
 }
 
-func CheckMigrations(crdbDsn string) error {
-	db, err := sql.Open("pgx", crdbDsn)
+func CheckMigrations(pgDSN string) error {
+	db, err := sql.Open("pgx", pgDSN)
 	if err != nil {
 		return err
 	}

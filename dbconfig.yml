@@ -6,18 +6,18 @@ local:
 
 staging:
   dialect: postgres
-  datasource: dbname=tangia sslmode=require host=blah port=26257 user=${CRDB_USER} password=${CRDB_PASSWORD} sslrootcert=staging.crt
+  datasource: dbname=tangia sslmode=require host=blah port=26257 user=${PG_USER} password=${PG_PASSWORD} sslrootcert=staging.crt
   dir: migrations
   table: migrations
 
 development:
   dialect: postgres
-  datasource: dbname=tangia sslmode=require host=blah port=26257 user=${CRDB_USER} password=${CRDB_PASSWORD} sslrootcert=staging.crt
+  datasource: dbname=tangia sslmode=require host=blah port=26257 user=${PG_USER} password=${PG_PASSWORD} sslrootcert=staging.crt
   dir: migrations
   table: migrations
 
 prod:
   dialect: postgres
-  datasource: ${CRDB_DSN}
+  datasource: ${PG_DSN}
   dir: migrations
   table: migrations

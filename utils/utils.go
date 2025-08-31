@@ -16,7 +16,6 @@ import (
 
 	"github.com/jackc/pgtype"
 
-	crdbpgx "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgxv5"
 	"github.com/danthegoodman1/GoAPITemplate/gologger"
 	"github.com/labstack/echo/v4"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -116,14 +115,14 @@ func DaysUntil(t time.Time, d time.Weekday) int {
 
 // this wrapper exists so caller stack skipping works
 func ReliableExec(ctx context.Context, pool *pgxpool.Pool, tryTimeout time.Duration, f func(ctx context.Context, conn *pgxpool.Conn) error) error {
-	return reliableExec(ctx, pool, tryTimeout, func(ctx context.Context, tx *pgxpool.Conn) error {
-		return f(ctx, tx)
+	return reliableExec(ctx, pool, tryTimeout, func(ctx context.Context, conn *pgxpool.Conn) error {
+		return f(ctx, conn)
 	})
 }
 
 func ReliableExecInTx(ctx context.Context, pool *pgxpool.Pool, tryTimeout time.Duration, f func(ctx context.Context, conn pgx.Tx) error) error {
-	return reliableExec(ctx, pool, tryTimeout, func(ctx context.Context, tx *pgxpool.Conn) error {
-		return crdbpgx.ExecuteTx(ctx, tx, pgx.TxOptions{}, func(tx pgx.Tx) error {
+	return reliableExec(ctx, pool, tryTimeout, func(ctx context.Context, conn *pgxpool.Conn) error {
+		return pgx.BeginTxFunc(ctx, conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
 			return f(ctx, tx)
 		})
 	})

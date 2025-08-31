@@ -3,8 +3,9 @@ package temporal
 import (
 	"context"
 	"fmt"
-	"go.temporal.io/sdk/workflow"
 	"time"
+
+	"go.temporal.io/sdk/workflow"
 )
 
 var (
@@ -27,7 +28,7 @@ func WorkflowExample(ctx workflow.Context, input WorkflowExampleInput) (*Workflo
 	logger.Info().Msg("starting example workflow")
 
 	var ac *WorkflowExampleActivities
-	out, err := execActivityIO(ctx, ac.DoubleNumber, input.Num, time.Second*5)
+	out, err := execActivityIO(ctx, ac.DoubleNumber, input.Num, time.Second*5, time.Second*5)
 	if err != nil {
 		return nil, fmt.Errorf("error in DoubleNumber: %w", err)
 	}

@@ -1,18 +1,6 @@
 local:
   dialect: postgres
-  datasource: dbname=defaultdb sslmode=disable host=localhost port=5432 user=postgres password=postgres
-  dir: migrations
-  table: migrations
-
-staging:
-  dialect: postgres
-  datasource: dbname=tangia sslmode=require host=blah port=5432 user=${PG_USER} password=${PG_PASSWORD} sslrootcert=staging.crt
-  dir: migrations
-  table: migrations
-
-development:
-  dialect: postgres
-  datasource: dbname=tangia sslmode=require host=blah port=5432 user=${PG_USER} password=${PG_PASSWORD} sslrootcert=staging.crt
+  datasource: dbname=psotgres sslmode=disable host=localhost port=5432 user=postgres password=postgres
   dir: migrations
   table: migrations
 

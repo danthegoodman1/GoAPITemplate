@@ -12,10 +12,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type ctxKey string
-
-const ReqIDKey ctxKey = "reqID"
-
 func init() {
 	l := NewLogger()
 	zerolog.DefaultContextLogger = &l

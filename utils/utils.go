@@ -16,7 +16,7 @@ import (
 
 	"github.com/jackc/pgtype"
 
-	"github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgxv5"
+	crdbpgx "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgxv5"
 	"github.com/danthegoodman1/GoAPITemplate/gologger"
 	"github.com/labstack/echo/v4"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -129,6 +129,8 @@ func ReliableExecInTx(ctx context.Context, pool *pgxpool.Pool, tryTimeout time.D
 	})
 }
 
+const reqIDKey = "reqID" // probably should be shared with custom_context
+
 func reliableExec(ctx context.Context, pool *pgxpool.Pool, tryTimeout time.Duration, f func(ctx context.Context, conn *pgxpool.Conn) error) error {
 	cfg := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 3)
 
@@ -156,10 +158,10 @@ func reliableExec(ctx context.Context, pool *pgxpool.Pool, tryTimeout time.Durat
 		}
 		return err
 	}, cfg, func(err error, d time.Duration) {
-		reqID, _ := ctx.Value(gologger.ReqIDKey).(string)
+		reqID, _ := ctx.Value(reqIDKey).(string)
 		l := zerolog.Ctx(ctx).Info().Err(err).CallerSkipFrame(5)
 		if reqID != "" {
-			l.Str(string(gologger.ReqIDKey), reqID)
+			l.Str(string(reqIDKey), reqID)
 		}
 		l.Msg("ReliableExec retrying")
 	})

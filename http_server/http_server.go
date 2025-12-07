@@ -40,7 +40,7 @@ type CustomValidator struct {
 }
 
 // Start an HTTP server on the given TCP and QUIC addresses. Leave quicAddr empty to disable QUIC.
-func StartHTTPServer(tcpAddr string, quicAddr string) *HTTPServer {
+func StartHTTPServer(tcpAddr string, quicAddr string, registerRoutes func(*echo.Echo)) *HTTPServer {
 	listener, err := net.Listen("tcp", tcpAddr)
 	if err != nil {
 		logger.Error().Err(err).Msg("error creating tcp listener, exiting")
@@ -59,8 +59,8 @@ func StartHTTPServer(tcpAddr string, quicAddr string) *HTTPServer {
 	s.Echo.Validator = &CustomValidator{validator: validator.New()}
 	s.Echo.HTTPErrorHandler = customHTTPErrorHandler
 
-	// technical - no auth
 	s.Echo.GET("/hc", s.HealthCheck)
+	registerRoutes(s.Echo)
 
 	s.Echo.Listener = listener
 	go func() {
@@ -74,20 +74,18 @@ func StartHTTPServer(tcpAddr string, quicAddr string) *HTTPServer {
 	}()
 
 	// Start http/3 server
-	go func() {
-		tlsCert, err := loadOrGenerateTLSCert()
-		if err != nil {
-			logger.Fatal().Err(err).Msg("failed to generate self-signed cert")
-		}
+	if quicAddr != "" {
+		go func() {
+			tlsCert, err := loadOrGenerateTLSCert()
+			if err != nil {
+				logger.Fatal().Err(err).Msg("failed to generate self-signed cert")
+			}
 
-		// TLS configuration
-		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{tlsCert},
-			NextProtos:   []string{"h3"},
-		}
+			tlsConfig := &tls.Config{
+				Certificates: []tls.Certificate{tlsCert},
+				NextProtos:   []string{"h3"},
+			}
 
-		// Create HTTP/3 server
-		if quicAddr != "" {
 			s.quicServer = &http3.Server{
 				Addr:      quicAddr,
 				Handler:   s.Echo,
@@ -96,14 +94,12 @@ func StartHTTPServer(tcpAddr string, quicAddr string) *HTTPServer {
 
 			logger.Info().Msg("starting h3 server on " + quicAddr)
 			err = s.quicServer.ListenAndServe()
-		}
-
-		// Start the server
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Error().Err(err).Msg("failed to start h2c server, exiting")
-			os.Exit(1)
-		}
-	}()
+			if err != nil && !errors.Is(err, http.ErrServerClosed) {
+				logger.Error().Err(err).Msg("failed to start h3 server, exiting")
+				os.Exit(1)
+			}
+		}()
+	}
 
 	return s
 }

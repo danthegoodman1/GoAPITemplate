@@ -59,7 +59,7 @@ func main() {
 		return
 	}
 
-	httpServer := http_server.StartHTTPServer(":8080", ":8080")
+	httpServer := http_server.StartHTTPServer(":8080", ":8080", nil)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)

@@ -4,14 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/danthegoodman1/GoAPITemplate/observability"
-	"github.com/danthegoodman1/GoAPITemplate/temporal"
-	"github.com/joho/godotenv"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/danthegoodman1/GoAPITemplate/observability"
+	"github.com/danthegoodman1/GoAPITemplate/temporal"
+	"github.com/joho/godotenv"
 
 	"github.com/danthegoodman1/GoAPITemplate/gologger"
 	"github.com/danthegoodman1/GoAPITemplate/http_server"
@@ -58,7 +59,7 @@ func main() {
 		return
 	}
 
-	httpServer := http_server.StartHTTPServer()
+	httpServer := http_server.StartHTTPServer(":8080", ":8080")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)

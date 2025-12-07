@@ -11,12 +11,13 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"github.com/quic-go/quic-go/http3"
 	"math/big"
 	"net"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/quic-go/quic-go/http3"
 
 	"github.com/danthegoodman1/GoAPITemplate/gologger"
 	"github.com/danthegoodman1/GoAPITemplate/utils"
@@ -38,8 +39,9 @@ type CustomValidator struct {
 	validator *validator.Validate
 }
 
-func StartHTTPServer() *HTTPServer {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", utils.GetEnvOrDefault("HTTP_PORT", "8080")))
+// Start an HTTP server on the given TCP and QUIC addresses. Leave quicAddr empty to disable QUIC.
+func StartHTTPServer(tcpAddr string, quicAddr string) *HTTPServer {
+	listener, err := net.Listen("tcp", tcpAddr)
 	if err != nil {
 		logger.Error().Err(err).Msg("error creating tcp listener, exiting")
 		os.Exit(1)
@@ -62,7 +64,7 @@ func StartHTTPServer() *HTTPServer {
 
 	s.Echo.Listener = listener
 	go func() {
-		logger.Info().Msg("starting h2c server on " + listener.Addr().String())
+		logger.Info().Msg("starting h2c server on " + tcpAddr)
 		// this just basically creates an h2c.NewHandler(echo, &http2.Server{})
 		err := s.Echo.StartH2CServer("", &http2.Server{})
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -85,14 +87,16 @@ func StartHTTPServer() *HTTPServer {
 		}
 
 		// Create HTTP/3 server
-		s.quicServer = &http3.Server{
-			Addr:      listener.Addr().String(),
-			Handler:   s.Echo,
-			TLSConfig: tlsConfig,
-		}
+		if quicAddr != "" {
+			s.quicServer = &http3.Server{
+				Addr:      quicAddr,
+				Handler:   s.Echo,
+				TLSConfig: tlsConfig,
+			}
 
-		logger.Info().Msg("starting h3 server on " + listener.Addr().String())
-		err = s.quicServer.ListenAndServe()
+			logger.Info().Msg("starting h3 server on " + quicAddr)
+			err = s.quicServer.ListenAndServe()
+		}
 
 		// Start the server
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -130,12 +134,14 @@ func (*HTTPServer) HealthCheck(c echo.Context) error {
 }
 
 func (s *HTTPServer) Shutdown(ctx context.Context) error {
-	err := s.quicServer.Close()
-	if err != nil {
-		return fmt.Errorf("error in quicServer.Close: %w", err)
+	if s.quicServer != nil {
+		err := s.quicServer.Close()
+		if err != nil {
+			return fmt.Errorf("error in quicServer.Close: %w", err)
+		}
 	}
 
-	err = s.Echo.Shutdown(ctx)
+	err := s.Echo.Shutdown(ctx)
 	if err != nil {
 		return fmt.Errorf("error shutting down echo: %w", err)
 	}

@@ -55,7 +55,7 @@ func GetEnvOrDefaultInt(env string, defaultVal int64) int64 {
 }
 
 func GenRandomID(prefix string) string {
-	return prefix + gonanoid.MustGenerate("abcdefghijklmonpqrstuvwxyzABCDEFGHIJKLMONPQRSTUVWXYZ0123456789", 22)
+	return prefix + gonanoid.MustGenerate("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 22)
 }
 
 func GenKSortedID(prefix string) string {
@@ -102,7 +102,7 @@ func SQLNullInt64(s int64) sql.NullInt64 {
 func GenRandomShortID() string {
 	// reduced character set that's less probable to mis-type
 	// change for conflicts is still only 1:128 trillion
-	return gonanoid.MustGenerate("abcdefghikmonpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ0123456789", 8)
+	return gonanoid.MustGenerate("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8)
 }
 
 func DaysUntil(t time.Time, d time.Weekday) int {
